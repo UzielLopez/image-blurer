@@ -1,4 +1,5 @@
 import os
+import re
 
 from PIL import Image
 
@@ -31,7 +32,7 @@ def getAllImages(imagesPath: str, app: MainApp):
             except:
                 print(file + " la imagen aun se encuentra en construcción")
 
-    images = sorted(images, key=lambda x: x[-2:])
+    images.sort(key=lambda f: int(re.sub('\D', '', f)))
     app.images.extend(images)
     app.evaluateButtonsEnable()
     print("--------------------")
