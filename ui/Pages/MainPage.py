@@ -12,7 +12,7 @@ class MainApp(QMainWindow):
     def __init__(self, baseImage):
         super().__init__()
         # cargando el diseño desde el archivo .ui
-        loadUi('    diseño.ui', self)
+        loadUi('diseño.ui', self)
 
         self.currentImageIndex = 0
         self.images = [baseImage]
