@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QMainWindow, QHBoxLayout
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.uic import loadUi
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QLabel, QMainWindow, QHBoxLayout
+import sys
 
 from Widgets.ImageLabel import ImageLabel
 from Widgets.CustomButton import CustomButton
@@ -10,7 +11,8 @@ from Widgets.CustomButton import CustomButton
 class MainApp(QMainWindow):
     def __init__(self, baseImage):
         super().__init__()
-        loadUi('diseño.ui', self)  # cargando el diseño desde el archivo .ui
+        # cargando el diseño desde el archivo .ui
+        loadUi('    diseño.ui', self)
 
         self.currentImageIndex = 0
         self.images = [baseImage]
@@ -21,12 +23,15 @@ class MainApp(QMainWindow):
         self.mainImageLabel = self.createLabelForImages()
         self.verticalLayout.addWidget(self.mainImageLabel)
 
+        self.imageTitleLabel = QLabel(self.images[self.currentImageIndex])
+        self.verticalLayout.addWidget(self.imageTitleLabel)
+
         self.prevButton = CustomButton(
-            QIcon("images/icons/prev.png"), "Ver la imagen anterior", "PREV", self.changeImage)
+            QIcon("images/icons/prev.png"), "Ver la imagen anterior", "PREV", self.clickChangeImage)
         self.prevButton.setDisabled(True)
 
         self.nextButton = CustomButton(
-            QIcon("images/icons/next.png"), "Ver la imagen siguiente", "NEXT", self.changeImage)
+            QIcon("images/icons/next.png"), "Ver la imagen siguiente", "NEXT", self.clickChangeImage)
         self.nextButton.setDisabled(True)
 
         buttonsWidget = self.createButtonGroup()
@@ -47,15 +52,15 @@ class MainApp(QMainWindow):
         else:
             self.prevButton.setDisabled(True)
 
-    def changeImage(self, button: CustomButton):
+    def clickChangeImage(self, button: CustomButton):
         modifier = 1 if button.type == "NEXT" else -1
         self.currentImageIndex += modifier
+        self.evaluateButtonsEnable()
 
         if (self.currentImageIndex > 0 and self.currentImageIndex < len(self.images)):
             self.changePixelmapMainImage(self.images[self.currentImageIndex])
+            self.imageTitleLabel.setText(self.images[self.currentImageIndex])
             return
-
-        self.evaluateButtonsEnable()
 
     def changePixelmapMainImage(self, imagePath: str):
         newMainImage = QPixmap(imagePath)
@@ -73,7 +78,7 @@ class MainApp(QMainWindow):
     def createLabelForImages(self) -> QLabel:
         mainImageLabel = ImageLabel("", "MAIN")
         # Creamos la imagen proporcionando su ruta.
-        mainImage = QPixmap("sample.bmp")
+        mainImage = QPixmap(self.images[self.currentImageIndex])
         # La escalamos para presentarla en pantalla.
         mainImage = mainImage.scaled(320, 240)
         # Le colocamos al label la imagen creada.
