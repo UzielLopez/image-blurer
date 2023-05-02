@@ -10,21 +10,24 @@ struct imageMetadata
     int height;
     int imageSize;
     char name[512]; // Filename without the extesion TODO: hacer handling en python para que el nombre no supere esos caracteres
+    char destinationFolder[128];
 };
 
 void blur(unsigned short kernelSize, struct imageMetadata imageData)
 {
 
     char grayscaleFilename[522];
-    strcpy(grayscaleFilename, imageData.name);
+    strcpy(grayscaleFilename, imageData.destinationFolder);
+    strcat(grayscaleFilename, imageData.name);
     strcat(grayscaleFilename, "_gray.bmp");
     FILE *originalImage = fopen(grayscaleFilename, "rb");
 
     int nameLength = strlen(imageData.name);
     char sufix[20];
     sprintf(sufix, "_blurred_%d.bmp", kernelSize);
-    char outputFilename[532];
-    strcpy(outputFilename, imageData.name);
+    char outputFilename[1028];
+    strcpy(outputFilename, imageData.destinationFolder);
+    strcat(outputFilename, imageData.name);
     strcat(outputFilename, sufix);
     FILE *outputImage = fopen(outputFilename, "wb");
 
@@ -95,6 +98,9 @@ int main(int argc, char *argv[])
 {
 
     char *filename = NULL;
+    char *destinationFolder = NULL;
+    char *tmp;
+    char *onlyFilename;
     int initialMask = 11;
     struct imageMetadata imageData;
 
@@ -108,9 +114,15 @@ int main(int argc, char *argv[])
             if (isdigit(argv[i + 1][0]))
                 initialMask = atoi(argv[i + 1]);
         }
+        if (strcmp(argv[i], "-d") == 0 && i + 1 < argc)
+            destinationFolder = argv[i + 1];
     }
     FILE *originalImage = fopen(filename, "rb");
-    strtok(filename, ".");
+    tmp = strrchr(filename, '/') + 1;
+    tmp = strtok(tmp, ".");
+    onlyFilename = (char *)malloc(strlen(tmp) + 1);
+    strcpy(onlyFilename, tmp);
+
     unsigned char header[54];
     fread(header, sizeof(unsigned char), 54, originalImage);
 
@@ -120,10 +132,13 @@ int main(int argc, char *argv[])
     imageData.height = height;
     imageData.width = width;
     imageData.imageSize = imageSize;
-    strcpy(imageData.name, filename);
-    char *outputFilename = malloc(10 + strlen(filename));
-    strcpy(outputFilename, filename);
-    FILE *outputImage = fopen(strcat(outputFilename, "_gray.bmp"), "wb");
+    strcpy(imageData.name, onlyFilename);
+    strcpy(imageData.destinationFolder, destinationFolder);
+    char *outputFilename = malloc(16 + (strlen(onlyFilename) * sizeof(char)) + (strlen(destinationFolder) * sizeof(char)));
+    strcpy(outputFilename, destinationFolder);
+    strcat(outputFilename, onlyFilename);
+    strcat(outputFilename, "_gray.bmp");
+    FILE *outputImage = fopen(outputFilename, "wb");
     fwrite(header, sizeof(unsigned char), 54, outputImage);
 
     int widthWithPadding = (width * 3 + 3) & -4;
