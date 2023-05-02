@@ -32,18 +32,13 @@ class BlurringWorker(QThread):
 
     def run(self):
         command_arguments = f"-f {self.image_path} -m {self.initial_mask}"
-        blurring_command = f"/home/uziel/Universidad/Redes/c/image-blurer/a.out " + command_arguments
-                
-        """
+        # blurring_command = f"/home/uziel/Universidad/Redes/c/image-blurer/a.out " + command_arguments
         hostfile = "machinefile" # TODO: change depending on relative path
         blurring_executable = "./blur" # TODO: change depending on relative path and executable name
         mpi_blurring_command = f"mpirun -hostfile {hostfile} {blurring_executable} " + command_arguments
-    
-        #TODO: cambiar esto por la llamada real
         print("Se ejecutaría el comando desde el worker: ", mpi_blurring_command)
-        """ 
-        print("se va a ejecutar el comando desde el worker: ", blurring_command)
-        self.pipe = subprocess.Popen("exec " + blurring_command, shell=True, stdout=subprocess.PIPE)
+        #print("se va a ejecutar el comando desde el worker: ", blurring_command)
+        self.pipe = subprocess.Popen("exec " + mpi_blurring_command, shell=True, stdout=subprocess.PIPE)
         blurring_result = self.pipe.communicate()[0].decode("utf-8")
         self.output.emit(blurring_result)
 
@@ -57,6 +52,7 @@ class MainApp(QMainWindow):
         self.currentImageIndex = 0
         self.image_path = ""
         self.executing_blurring = False
+        self.available_nodes = 0
 
         self.blurringThread.finished.connect(self.reset_ui)
         self.blurringThread.output[str].connect(self._debug_output)
@@ -168,16 +164,16 @@ class MainApp(QMainWindow):
 
         self.ejecutar.setEnabled(False)
         # Antes de ejecutar, creamos el nuevo machinefile dependiendo del estado de la red
-        available_nodes = check_cluster_status(number_of_masks)
+        self.available_nodes = check_cluster_status(number_of_masks)
 
         # TODO: cuando haya no haya ni un solo nodo disponible (que sería el caso donde la config este mal)
         # decirle al usuario que no se va a ejecutar (?)
-        if available_nodes == 0:
+        if self.available_nodes == 0:
             print("No hay nodos disponibles. Revisa la configuración del clúster.")
             self.ejecutar.setEnabled(True)
             return  
         
-        print(f"Se distribuirá el trabajo entre {available_nodes} nodos")
+        print(f"Se distribuirá el trabajo entre {self.available_nodes} nodos")
         self.ejecutar.setText("Cancelar")
         self.executing_blurring = True
         self.ejecutar.setEnabled(True)
