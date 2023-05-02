@@ -13,9 +13,9 @@ if __name__ == "__main__":
 
     results = False
 
-    imagePath = [""]
+    imagePath = ["/"]
 
-    resultsPage = ResultPage("")
+    resultsPage = ResultPage("/")
     configPage = MainApp(resultsPage, imagePath)
 
     configPage.show()
