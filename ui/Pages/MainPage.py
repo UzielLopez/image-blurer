@@ -7,7 +7,7 @@ from Widgets.ImageLabel import ImageLabel
 
 
 class MainApp(QMainWindow):
-    def __init__(self, results):
+    def __init__(self, resultsPage, imagePath):
         super().__init__()
         # cargando el diseño desde el archivo .ui
         loadUi('diseño.ui', self)
@@ -21,9 +21,14 @@ class MainApp(QMainWindow):
         self.pushButton.clicked.connect(self.on_button_click)
 
         self.getResultsButton = QPushButton("Obtener resultados")
-        self.getResultsButton.clicked.connect(lambda x: results.show())
+        self.getResultsButton.clicked.connect(lambda x : self.results_click(resultsPage, imagePath))
 
         self.verticalLayout.addWidget(self.getResultsButton)
+
+
+    def results_click(self, resultsPage, imagePath): 
+        imagePath[0] = "images/blur"
+        resultsPage.show()
 
     def on_button_click(self):
         self.photoViewer.setText('\n\n Button Clicked \n\n')
