@@ -10,7 +10,7 @@ class ResultPage(QMainWindow):
     def __init__(self, baseImage):
         super().__init__()
 
-        loadUi('diseño.ui', self)
+        loadUi('results.ui', self)
         self.currentImageIndex = 0
         self.images = [baseImage]
 

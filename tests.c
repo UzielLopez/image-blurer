@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <ctype.h>
 
 struct imageMetadata
 {
@@ -9,21 +10,24 @@ struct imageMetadata
     int height;
     int imageSize;
     char name[512]; // Filename without the extesion TODO: hacer handling en python para que el nombre no supere esos caracteres
+    char destinationFolder[128];
 };
 
 void blur(unsigned short kernelSize, struct imageMetadata imageData)
 {
 
     char grayscaleFilename[522];
-    strcpy(grayscaleFilename, imageData.name);
+    strcpy(grayscaleFilename, imageData.destinationFolder);
+    strcat(grayscaleFilename, imageData.name);
     strcat(grayscaleFilename, "_gray.bmp");
     FILE *originalImage = fopen(grayscaleFilename, "rb");
 
     int nameLength = strlen(imageData.name);
-    char *sufix = malloc(nameLength + 14 * sizeof(char));
+    char sufix[20];
     sprintf(sufix, "_blurred_%d.bmp", kernelSize);
-    char outputFilename[nameLength + 14 * sizeof(char)];
-    strcpy(outputFilename, imageData.name);
+    char outputFilename[1028];
+    strcpy(outputFilename, imageData.destinationFolder);
+    strcat(outputFilename, imageData.name);
     strcat(outputFilename, sufix);
     FILE *outputImage = fopen(outputFilename, "wb");
 
@@ -88,25 +92,37 @@ void blur(unsigned short kernelSize, struct imageMetadata imageData)
     fclose(originalImage);
 
     free(pixelData);
-    free(sufix);
 }
 
 int main(int argc, char *argv[])
 {
 
     char *filename = NULL;
+    char *destinationFolder = NULL;
+    char *tmp;
+    char *onlyFilename;
+    int initialMask = 11;
     struct imageMetadata imageData;
 
     for (int i = 1; i < argc; i++)
     {
         if (strcmp(argv[i], "-f") == 0 && i + 1 < argc)
-        {
             filename = argv[i + 1];
-            break;
+
+        if (strcmp(argv[i], "-m") == 0 && i + 1 < argc)
+        {
+            if (isdigit(argv[i + 1][0]))
+                initialMask = atoi(argv[i + 1]);
         }
+        if (strcmp(argv[i], "-d") == 0 && i + 1 < argc)
+            destinationFolder = argv[i + 1];
     }
     FILE *originalImage = fopen(filename, "rb");
-    strtok(filename, ".");
+    tmp = strrchr(filename, '/') + 1;
+    tmp = strtok(tmp, ".");
+    onlyFilename = (char *)malloc(strlen(tmp) + 1);
+    strcpy(onlyFilename, tmp);
+
     unsigned char header[54];
     fread(header, sizeof(unsigned char), 54, originalImage);
 
@@ -116,10 +132,13 @@ int main(int argc, char *argv[])
     imageData.height = height;
     imageData.width = width;
     imageData.imageSize = imageSize;
-    strcpy(imageData.name, filename);
-    char *outputFilename = malloc(10 + strlen(filename));
-    strcpy(outputFilename, filename);
-    FILE *outputImage = fopen(strcat(outputFilename, "_gray.bmp"), "wb");
+    strcpy(imageData.name, onlyFilename);
+    strcpy(imageData.destinationFolder, destinationFolder);
+    char *outputFilename = malloc(16 + (strlen(onlyFilename) * sizeof(char)) + (strlen(destinationFolder) * sizeof(char)));
+    strcpy(outputFilename, destinationFolder);
+    strcat(outputFilename, onlyFilename);
+    strcat(outputFilename, "_gray.bmp");
+    FILE *outputImage = fopen(outputFilename, "wb");
     fwrite(header, sizeof(unsigned char), 54, outputImage);
 
     int widthWithPadding = (width * 3 + 3) & -4;
@@ -146,7 +165,7 @@ int main(int argc, char *argv[])
 
     free(outputFilename);
 
-    for (int i = 3; i < 7; i += 2)
+    for (int i = initialMask; i < 13; i += 2)
         blur(i, imageData);
 
     return 0;
