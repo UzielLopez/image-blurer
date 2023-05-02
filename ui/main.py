@@ -13,14 +13,16 @@ if __name__ == "__main__":
 
     results = False
 
-    resultsPage = ResultPage("images/blur/f5.bmp")
-    configPage = MainApp(resultsPage)
+    imagePath = [""]
+
+    resultsPage = ResultPage("")
+    configPage = MainApp(resultsPage, imagePath)
 
     configPage.show()
 
     timer = QTimer()
     timer.timeout.connect(lambda: getAllImages(
-        "images/blur", resultsPage))
+        imagePath[0], resultsPage))
     timer.start(5000)
 
     sys.exit(app.exec_())
