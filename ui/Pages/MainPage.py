@@ -43,7 +43,7 @@ class BlurringWorker(QThread):
         self.output.emit(blurring_result)
 
 class MainApp(QMainWindow):
-    def __init__(self, results):
+    def __init__(self, resultsPage, imagePath):
         super().__init__()
         self.blurringThread = BlurringWorker()
         # cargando el diseño desde el archivo .ui
@@ -71,10 +71,17 @@ class MainApp(QMainWindow):
         self.ejecutar.setEnabled(False)
 
         self.getResultsButton = QPushButton("Obtener resultados")
-        self.getResultsButton.clicked.connect(lambda x: results.show())
+        self.getResultsButton.clicked.connect(lambda x : self.results_click(resultsPage, imagePath))
 
         self.verticalLayout.addWidget(self.getResultsButton)
 
+    def results_click(self, resultsPage, imagePath): 
+        imagePath[0] = "images/blur"
+        resultsPage.show()
+
+    def on_button_click(self):
+        self.photoViewer.setText('\n\n Button Clicked \n\n')
+        
     def dragEnterEvent(self, event):
         if event.mimeData().hasImage:
             event.accept()

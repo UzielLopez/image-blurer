@@ -3,10 +3,9 @@ import re
 
 from PIL import Image
 
-from Pages.MainPage import MainApp
 
 
-def getAllImages(imagesPath: str, app: MainApp):
+def getAllImages(imagesPath: str, app):
     if len(app.images) >= 40:
         print("Ya se han cargado todas las imagenes")
         return
