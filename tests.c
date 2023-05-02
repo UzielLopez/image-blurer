@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <ctype.h>
 
 struct imageMetadata
 {
@@ -20,9 +21,9 @@ void blur(unsigned short kernelSize, struct imageMetadata imageData)
     FILE *originalImage = fopen(grayscaleFilename, "rb");
 
     int nameLength = strlen(imageData.name);
-    char *sufix = malloc(nameLength + 14 * sizeof(char));
+    char sufix[20];
     sprintf(sufix, "_blurred_%d.bmp", kernelSize);
-    char outputFilename[nameLength + 14 * sizeof(char)];
+    char outputFilename[532];
     strcpy(outputFilename, imageData.name);
     strcat(outputFilename, sufix);
     FILE *outputImage = fopen(outputFilename, "wb");
@@ -88,21 +89,24 @@ void blur(unsigned short kernelSize, struct imageMetadata imageData)
     fclose(originalImage);
 
     free(pixelData);
-    free(sufix);
 }
 
 int main(int argc, char *argv[])
 {
 
     char *filename = NULL;
+    int initialMask = 11;
     struct imageMetadata imageData;
 
     for (int i = 1; i < argc; i++)
     {
         if (strcmp(argv[i], "-f") == 0 && i + 1 < argc)
-        {
             filename = argv[i + 1];
-            break;
+
+        if (strcmp(argv[i], "-m") == 0 && i + 1 < argc)
+        {
+            if (isdigit(argv[i + 1][0]))
+                initialMask = atoi(argv[i + 1]);
         }
     }
     FILE *originalImage = fopen(filename, "rb");
@@ -146,7 +150,7 @@ int main(int argc, char *argv[])
 
     free(outputFilename);
 
-    for (int i = 3; i < 7; i += 2)
+    for (int i = initialMask; i < 13; i += 2)
         blur(i, imageData);
 
     return 0;

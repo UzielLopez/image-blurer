@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <ctype.h>
 #include "mpi.h"
 
 struct imageMetadata
@@ -21,9 +22,9 @@ void blur(unsigned short kernelSize, struct imageMetadata imageData)
     FILE *originalImage = fopen(grayscaleFilename, "rb");
 
     int nameLength = strlen(imageData.name);
-    char *sufix = malloc(nameLength + 14 * sizeof(char));
+    char sufix[20];
     sprintf(sufix, "_blurred_%d.bmp", kernelSize);
-    char outputFilename[nameLength + 14 * sizeof(char)];
+    char outputFilename[532];
     strcpy(outputFilename, imageData.name);
     strcat(outputFilename, sufix);
     FILE *outputImage = fopen(outputFilename, "wb");
@@ -103,6 +104,7 @@ int main(int argc, char *argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
     char *filename = NULL;
+    int initialMask = 11;
     struct imageMetadata imageData;
 
     if (rank == 0)
@@ -113,11 +115,15 @@ int main(int argc, char *argv[])
         for (int i = 1; i < argc; i++)
         {
             if (strcmp(argv[i], "-f") == 0 && i + 1 < argc)
-            {
                 filename = argv[i + 1];
-                break;
+
+            if (strcmp(argv[i], "-m") == 0 && i + 1 < argc)
+            {
+                if (isdigit(argv[i + 1][0]))
+                    initialMask = atoi(argv[i + 1]);
             }
         }
+
         FILE *originalImage = fopen(filename, "rb");
         strtok(filename, ".");
         unsigned char header[54];
@@ -166,7 +172,7 @@ int main(int argc, char *argv[])
 
     if (rank < nprocs && (rank + 1) % 2 != 0)
     {
-        int n = nprocs - rank + 11;
+        int n = nprocs - rank + initialMask;
         blur(n, imageData);
     }
 
@@ -174,3 +180,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
