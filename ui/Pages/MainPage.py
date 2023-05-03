@@ -35,7 +35,7 @@ class BlurringWorker(QThread):
     def run(self):
         command_arguments = f"-f {self.image_path} -m {self.initial_mask} -d {self.output_path}"
         #blurring_command = f"/home/uziel/Universidad/Redes/cm/image-blurer/a.out " + command_arguments
-        hostfile = "machinefile" # TODO: change depending on relative path
+        hostfile = "/mirror/mpiu/machinefile" # TODO: change depending on relative path
         blurring_executable = "/mirror/mpiu/blur" # TODO: change depending on relative path and executable name
         mpi_blurring_command = f"mpirun -hostfile {hostfile} {blurring_executable} " + command_arguments
         print("Se ejecutaría el comando desde el worker: ", mpi_blurring_command)
@@ -79,7 +79,7 @@ class MainApp(QMainWindow):
         self.verticalLayout.addWidget(self.getResultsButton)
 
     def results_click(self, resultsPage, imagePath): 
-        imagePath[0] = "images/blur"
+        imagePath[0] = self.textEdit_3.toPlainText()
         resultsPage.show()
 
     def on_button_click(self):

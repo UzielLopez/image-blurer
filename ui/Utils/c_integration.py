@@ -48,7 +48,7 @@ def check_cluster_status(masks: int) -> int:
             load_distribution[node] = load_distribution[node] + 1
 
     # 5. Update machinefile with all alive hosts
-    with open("machinefile", "w") as f: #TODO: change depending on relative path
+    with open("/mirror/mpiu/machinefile", "w") as f: #TODO: change depending on relative path
         for node in available_nodes:
             node_name = registered_nodes[node]
             number_of_masks = load_distribution[node]

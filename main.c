@@ -93,7 +93,6 @@ void blur(unsigned short kernelSize, struct imageMetadata imageData)
     fclose(originalImage);
 
     free(pixelData);
-    free(sufix);
 }
 
 int main(int argc, char *argv[])
@@ -185,9 +184,9 @@ int main(int argc, char *argv[])
 
     MPI_Bcast(&imageData, sizeof(struct imageMetadata), MPI_BYTE, 0, MPI_COMM_WORLD);
 
-    if (rank < nprocs && (rank + 1) % 2 != 0)
+    if (rank < nprocs)
     {
-        int n = nprocs - rank + initialMask;
+        int n = initialMask + rank * 2;
         blur(n, imageData);
     }
 
