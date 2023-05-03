@@ -183,6 +183,7 @@ int main(int argc, char *argv[])
     MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Bcast(&imageData, sizeof(struct imageMetadata), MPI_BYTE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&initialMask, sizeof(int), MPI_BYTE, 0, MPI_COMM_WORLD);
 
     if (rank < nprocs)
     {
