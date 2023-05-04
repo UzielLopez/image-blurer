@@ -322,3 +322,10 @@ La división del proceso de ejecución en tres máquinas virtuales permitió apr
 Además, la implementación de una interfaz gráfica intuitiva y fácil de usar diseñada en QT Designer y programada en pyQT5, brindó al usuario una experiencia más amigable y cómoda al interactuar con el programa.
 
 En general, este proyecto es una solución altamente recomendable para procesos que requieren alta capacidad de procesamiento y que además necesitan de una interfaz gráfica para interactuar con el usuario. Lo cual también ayudó a una implementación más intuitiva además de eficiente gracias a la interfaz gráfica, que permite al usuario controlar la ejecución del programa.
+
+
+## Requerimientos
+- Programa fping instalado en las máquinas de Linux
+- Librería PyQT5 para Python3
+- OpenMPI instalado en todas las máquinas de Linux
+- NFS server en el nodo maestro y NFS Client en los esclavos
